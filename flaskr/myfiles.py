@@ -10,13 +10,14 @@ from flaskr.db import get_db
 bp = Blueprint('myfiles', __name__)
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 UPLOAD_FOLDER = "/home/csevirus/project/mydrive/uploads"
+DOMAIN_NAME = "http://127.0.0.1:5000/"
 
 @bp.route('/')
 @login_required
 def index():
     db = get_db()
     posts = db.execute(
-        'SELECT p.id, title, description, created, author_id, username'
+        'SELECT p.id, title, description, created, author_id, username, extension'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' WHERE p.author_id = ?',
         (g.user['id'],)
@@ -77,7 +78,19 @@ def get_post(id):
 def getfile(id):
     post = get_post(id)
     filename = post['title'] + '.' + post['extension']
+    return uploaded_file(filename)
+
+@bp.route('/<filename>/uploads')
+def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
+
+@bp.route('/<int:id>/share')
+def share(id):
+    post = get_post(id)
+    filename = post['title']+'.'+post['extension']
+    link = "LINK : "+ DOMAIN_NAME + url_for('myfiles.uploaded_file',filename = filename)
+    flash(link)
+    return redirect(url_for('myfiles.index'))
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
