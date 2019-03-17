@@ -2,6 +2,7 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, send_from_directory
 )
 import os
+import bitly_api
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 from flaskr.auth import login_required
@@ -10,7 +11,8 @@ from flaskr.db import get_db
 bp = Blueprint('myfiles', __name__)
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 UPLOAD_FOLDER = "/home/csevirus/project/mydrive/uploads"
-DOMAIN_NAME = "http://127.0.0.1:5000/"
+DOMAIN_NAME = "http://127.0.0.1:5000"
+BITLY_ACCESS_TOKEN ="c09aa3f62d052e9c97e87923b412b2410dd865c7"
 
 @bp.route('/')
 @login_required
@@ -87,9 +89,11 @@ def uploaded_file(filename):
 @bp.route('/<int:id>/share')
 def share(id):
     post = get_post(id)
+    b = bitly_api.Connection(access_token = BITLY_ACCESS_TOKEN)
     filename = post['title']+'.'+post['extension']
-    link = "LINK : "+ DOMAIN_NAME + url_for('myfiles.uploaded_file',filename = filename)
-    flash(link)
+    link = DOMAIN_NAME + url_for('myfiles.uploaded_file',filename = filename)
+    link = b.shorten(link)
+    flash("LINK : " + link['url'])
     return redirect(url_for('myfiles.index'))
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
