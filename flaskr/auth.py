@@ -1,5 +1,5 @@
 import functools
-from . import db
+from flaskr.db import get_db
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
@@ -12,8 +12,7 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # from . import db
-        database = db.get_db()
+        database = get_db()
         error = None
         if not username:
             error = 'Username is required.'
@@ -38,8 +37,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # from . import db
-        database = db.get_db()
+        database = get_db()
         error = None
         user = database.execute(
             'SELECT * FROM user WHERE username = ?', (username,)
@@ -61,7 +59,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = db.get_db().execute(
+        g.user = get_db().execute(
             'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
 
