@@ -1,7 +1,7 @@
 # mydrive
-About :
+# About :
 A system allowing verified users to upload sensitive data in the form of large files
-How to use:
+# How to use:
 You must have Flask installed in your computer.
 step 1 : clone or download zip of this project.
 step 2 : open project directory and execute following command "pip install -e"
